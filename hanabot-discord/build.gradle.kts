@@ -2,6 +2,10 @@ object DependencyVersions {
 	const val SWAGGER_VERSION = "2.9.2"
 }
 
+repositories {
+	jcenter()
+}
+
 dependencies {
 
 	implementation(project(":hanabot-common"))
@@ -16,6 +20,7 @@ dependencies {
 	implementation("javax.cache:cache-api:1.1.1")
 
 	implementation ("com.discord4j:discord4j-core:3.1.1")
+	implementation ("com.sedmelluq:lavaplayer:1.3.60")
 
 	// jsoup
 	implementation("org.jsoup:jsoup:1.13.1")

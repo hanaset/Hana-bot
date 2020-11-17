@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 buildscript {
     repositories {
         mavenCentral()
+        jcenter()
     }
     dependencies {
         classpath( "org.jetbrains.kotlin:kotlin-noarg:1.3.71")
@@ -42,6 +43,7 @@ allprojects {
 subprojects {
     repositories {
         mavenCentral()
+        jcenter()
     }
 
     apply {
