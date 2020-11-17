@@ -15,7 +15,6 @@ import org.springframework.scheduling.annotation.EnableScheduling
 import java.util.*
 import javax.annotation.PostConstruct
 
-@EnableAsync
 @EnableScheduling
 @SpringBootApplication(scanBasePackages = [
     "com.hanaset.hanabot.common.*",

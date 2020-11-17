@@ -1,10 +1,14 @@
 package com.hanaset.hanabot.discord.service
 
 import com.hanaset.hanabot.discord.constants.Commands
-import com.hanaset.hanabot.discord.exception.HanabotDiscordLoginFailedException
+import com.hanaset.hanabot.discord.exception.DiscordLoginFailedException
 import discord4j.core.DiscordClientBuilder
+import discord4j.core.GatewayDiscordClient
 import discord4j.core.event.domain.lifecycle.ReadyEvent
 import discord4j.core.event.domain.message.MessageCreateEvent
+import discord4j.discordjson.json.MessageCreateRequest
+import discord4j.rest.util.MultipartRequest
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 
@@ -13,16 +17,18 @@ class DiscordBotService(
         @Value("\${discord.token}") private val discordToken: String
 ) {
 
+    private val logger = LoggerFactory.getLogger(DiscordBotService::class.java)
+    private val discordClient: GatewayDiscordClient = DiscordClientBuilder.create(discordToken)
+        .build()
+        .login()
+        .onErrorMap { throw DiscordLoginFailedException() }
+        .block()!!
+
     init {
-        this.createBot()
+        this.createDispatcher()
     }
 
-    fun createBot() {
-        val discordClient = DiscordClientBuilder.create(discordToken)
-                .build()
-                .login()
-                .onErrorMap { throw HanabotDiscordLoginFailedException() }
-                .block()!!
+    private fun createDispatcher() {
 
         discordClient.eventDispatcher.on(ReadyEvent::class.java)
                 .subscribe { event ->
@@ -32,6 +38,8 @@ class DiscordBotService(
 
         discordClient.eventDispatcher.on(MessageCreateEvent::class.java)
                 .subscribe{
+
+                    logger.info("GuildId: ${it.guildId.get()}, member: ${it.member.get()}, channelId: ${it.message.channelId}, user: ${it.message.author.get()}")
                     val content = it.message.content
                     for(entry in Commands.commands.entries) {
                         if(content.startsWith(entry.key) || content == entry.key) {
@@ -42,5 +50,10 @@ class DiscordBotService(
                 }
 
         discordClient.onDisconnect()
+    }
+
+    fun sendMessage(channelId: Long, message: String) {
+        discordClient.restClient.channelService.createMessage(channelId, MultipartRequest(MessageCreateRequest.builder().content(message).build())).block()
+        logger.info("sendMessage :: ChannelId = $channelId, Message = $message")
     }
 }

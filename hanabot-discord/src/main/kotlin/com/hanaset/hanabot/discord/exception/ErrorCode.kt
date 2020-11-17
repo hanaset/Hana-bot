@@ -11,5 +11,6 @@ enum class ErrorCode(
     INVALID_TYPE_VALUE(HttpStatus.BAD_REQUEST, "invalid type value"),
     NOT_FOUND(HttpStatus.NOT_FOUND, "Not found"),
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "Method type is invalid"),
-    LOGIN_FAILED(HttpStatus.BAD_REQUEST, "Discord Client Login Failed")
+    LOGIN_FAILED(HttpStatus.BAD_REQUEST, "Discord Client Login Failed"),
+    BAD_REQUEST(HttpStatus.BAD_REQUEST, "Discord Bad Request")
 }
