@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service
 import javax.annotation.PostConstruct
 
 @Service
-class JoinPlayerCommandService(
+class MusicPlayerCommandService(
         private val discordMusicService: DiscordMusicService
 ) : Command {
 
