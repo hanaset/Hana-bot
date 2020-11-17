@@ -37,4 +37,12 @@ class CalendarApply(
     fun nonAttend() {
         this.status = CalendarApplyStatus.NON_ATTEND
     }
+
+    fun reject() {
+        this.status = CalendarApplyStatus.REJECT
+    }
+
+    fun apply() {
+        this.status = CalendarApplyStatus.APPLY
+    }
 }

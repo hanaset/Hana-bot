@@ -2,8 +2,12 @@ package com.hanaset.hanabot.discord.service
 
 import com.hanaset.hanabot.discord.constants.Commands
 import com.hanaset.hanabot.discord.exception.DiscordLoginFailedException
+import com.hanaset.hanabot.discord.service.command.HelpCommandService
 import discord4j.core.DiscordClientBuilder
 import discord4j.core.GatewayDiscordClient
+import discord4j.core.event.domain.InviteCreateEvent
+import discord4j.core.event.domain.guild.GuildCreateEvent
+import discord4j.core.event.domain.lifecycle.ConnectEvent
 import discord4j.core.event.domain.lifecycle.ReadyEvent
 import discord4j.core.event.domain.message.MessageCreateEvent
 import discord4j.discordjson.json.MessageCreateRequest
@@ -11,20 +15,23 @@ import discord4j.rest.util.MultipartRequest
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
+import javax.annotation.PostConstruct
 
 @Service
 class DiscordBotService(
-        @Value("\${discord.token}") private val discordToken: String
+        @Value("\${discord.token}") private val discordToken: String,
+        private val helpCommandService: HelpCommandService
 ) {
 
     private val logger = LoggerFactory.getLogger(DiscordBotService::class.java)
     private val discordClient: GatewayDiscordClient = DiscordClientBuilder.create(discordToken)
-        .build()
-        .login()
-        .onErrorMap { throw DiscordLoginFailedException() }
-        .block()!!
+            .build()
+            .login()
+            .onErrorMap { throw DiscordLoginFailedException() }
+            .block()!!
 
-    init {
+    @PostConstruct
+    fun init() {
         this.createDispatcher()
     }
 
@@ -37,16 +44,24 @@ class DiscordBotService(
                 }
 
         discordClient.eventDispatcher.on(MessageCreateEvent::class.java)
-                .subscribe{
+                .subscribe {
 
                     logger.info("GuildId: ${it.guildId.get()}, member: ${it.member.get()}, channelId: ${it.message.channelId}, user: ${it.message.author.get()}")
                     val content = it.message.content
-                    for(entry in Commands.commands.entries) {
-                        if(content.startsWith(entry.key) || content == entry.key) {
+                    for (entry in Commands.commands.entries) {
+                        if (content.startsWith(entry.key) || content == entry.key) {
                             entry.value.execute(it)
                             break
                         }
                     }
+                }
+
+        //
+        discordClient.eventDispatcher.on(GuildCreateEvent::class.java)
+                .subscribe { event ->
+                    val channelId = event.guild.systemChannelId.get().asLong()
+                    val text = helpCommandService.getResponse(null)
+                    event.client.restClient.channelService.createMessage(channelId, MultipartRequest(MessageCreateRequest.builder().content(text).build())).block()
                 }
 
         discordClient.onDisconnect()

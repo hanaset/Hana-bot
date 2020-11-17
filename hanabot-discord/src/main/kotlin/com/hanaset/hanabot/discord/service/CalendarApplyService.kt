@@ -29,9 +29,9 @@ class CalendarApplyService(
             userId = userId,
             username = username,
             comment = comment
-        ).apply {
-            this.status = CalendarApplyStatus.APPLY
-        }
+        )
+
+        apply.apply()
 
         calendarApplyRepository.save(apply)
         logger.info("CalendarApply::apply  CalendarId = ${apply.calendarId}, UserId = $userId")
@@ -46,14 +46,14 @@ class CalendarApplyService(
 
         if(comment.isEmpty() ||comment.length > 100) throw DiscordBadRequestException()
 
-        val apply = calendarApplyRepository.findByCalendarIdAndUserId(calendarId, userId ) ?: CalendarApply(
+        val apply = calendarApplyRepository.findByCalendarIdAndUserId(calendarId, userId) ?: CalendarApply(
             calendarId = calendarId,
             userId = userId,
             username = username,
             comment = comment
-        ).apply {
-            this.status = CalendarApplyStatus.REJECT
-        }
+        )
+
+        apply.reject()
 
         calendarApplyRepository.save(apply)
         logger.info("CalendarApply::reject CalendarId = ${apply.calendarId}, UserId = $userId")

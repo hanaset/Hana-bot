@@ -12,4 +12,6 @@ interface CalendarRepository : JpaRepository<Calendar, Long> {
     fun findByReserveDateAndStatus(date: LocalDateTime, status: CalendarStatus): List<Calendar>
 
     fun findByGuildIdAndStatusOrderByReserveDateAsc(guildId: Long, status: CalendarStatus): List<Calendar>
+
+    fun findByGuildIdAndChannelIdAndStatus(guildId: Long, calendarId: Long, status: CalendarStatus): Calendar?
 }

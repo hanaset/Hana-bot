@@ -9,7 +9,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.annotation.PostConstruct
 
-var scheduleRegsiterResponse = """
+var scheduleRegisterResponse = """
 ** {schedule} 이/가 예약 되었습니다. **
 
 🥰 일정 시작 전 10분 예약해주신 채널로 알람 드리겠습니다.^^
@@ -32,7 +32,7 @@ class ScheduleRegisterCommandService(
 
     @PostConstruct
     fun init() {
-        val command = "!일정등록"
+        val command = "!일정추가"
         Commands.commands[command] = this
     }
 
@@ -48,7 +48,7 @@ class ScheduleRegisterCommandService(
         return if(contents == null)
             scheduleRegisterFailedResponse
         else {
-            scheduleRegsiterResponse.replace("{schedule}", contents["schedule"].toString())
+            scheduleRegisterResponse.replace("{schedule}", contents["schedule"].toString())
         }
     }
 

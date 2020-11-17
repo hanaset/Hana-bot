@@ -7,25 +7,24 @@ import discord4j.core.event.domain.message.MessageCreateEvent
 import org.springframework.stereotype.Service
 import javax.annotation.PostConstruct
 
-
-val scheduleViewResponse = """
-** 현재 검색하신 일정에 대한 정보와 참가자 명단입니다. **
+val scheduleViewListResponse = """
+** 현재 등록 하신 일정은 아래와 같습니다. **
 
 {schedule}
 """.trimIndent()
 
-val scheduleViewNotFoundResponse = """
-** 현재 검색하신 Calendar ID는 잘못된 요청입니다. **
+val scheduleViewListNotFoundResponse = """
+** 현재 등록 하신 일정이 없습니다. **
 """.trimIndent()
 
 @Service
-class ScheduleViewCommandService(
-        private val calendarService: CalendarService
+class ScheduleViewListCommandService(
+    private val calendarService: CalendarService
 ) : Command {
 
     @PostConstruct
     fun init() {
-        val command = "!참가인원확인"
+        val command = "!일정보기"
         Commands.commands[command] = this
     }
 
@@ -37,20 +36,19 @@ class ScheduleViewCommandService(
     }
 
     override fun getResponse(contents: Map<String, String>?): String {
-        return if (contents == null) {
-            scheduleViewNotFoundResponse
+
+        return if (contents != null) {
+            scheduleViewListResponse.replace("{schedule}", contents["schedule"].toString())
         } else {
-            scheduleViewResponse.replace("{schedule}", contents["schedule"].toString())
+            scheduleViewListNotFoundResponse
         }
     }
 
     override fun getWords(event: MessageCreateEvent): Map<String, String>? {
 
         return try {
-            val words = event.message.content.split(" ")
-            val calendarId = words[1].toLong()
-            val res = calendarService.getCalendar(calendarId = calendarId, guildId = event.guildId.get().asLong())
-            mutableMapOf("schedule" to res)
+            val response = calendarService.getCalendars(event.guildId.get().asLong())
+            mutableMapOf(Pair("schedule", response))
         } catch (ex: Exception) {
             null
         }
