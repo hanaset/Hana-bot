@@ -10,3 +10,4 @@ open class HanabotDiscordException(
 class DiscordLoginFailedException: HanabotDiscordException(ErrorCode.LOGIN_FAILED)
 class DiscordNotFoundCalendarException: HanabotDiscordException(ErrorCode.NOT_FOUND)
 class DiscordBadRequestException: HanabotDiscordException(ErrorCode.BAD_REQUEST)
+
